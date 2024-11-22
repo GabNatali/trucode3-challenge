@@ -84,3 +84,7 @@ La fuente de datos se encuentra en la carpeta data. Es un archivo de texto plano
   - Asegúrate de que la aplicación cumpla con los requisitos establecidos como obligatorios y cualesquiera de los opcionales.
 
 ¡Éxito!
+
+
+
+##go run main.go --env-path .env
