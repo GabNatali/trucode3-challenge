@@ -28,3 +28,8 @@ export interface IResponse<T> {
   status: number;
   message: string
 }
+
+
+export interface ILoginResponse {
+  token: string
+}

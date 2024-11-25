@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { onMounted, reactive } from "vue";
-import OptBlock from "../components/OptBlock.vue";
 
 import { useAFilterStore } from "../stores/filter.store"
 import { useAuthStore } from '../../../stores/auth.store';
 import * as utils from "@/utils/utils";
-import type { IFilter } from "../interfaces";
+import type { IFilterString } from "../interfaces";
 import authApi from "@/modules/auth/actions/authApi";
 import { useToast } from 'vue-toastification';
 import { isAxiosError } from "axios";
 
 const Toast = useToast();
 const authStore = useAuthStore();
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const useFilter = useAFilterStore();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const selectedFilters = reactive<Record<string, any>>({
   education: [],
   marital_status: [],
@@ -22,28 +23,35 @@ const selectedFilters = reactive<Record<string, any>>({
   order_dir:"",
   max_age:0,
   min_age:0,
-  user_id: authStore.userData.id
+  user_id: authStore.userDataResponse!.id
 });
-
-
 
 onMounted(async() => {
   utils.convertConfig(authStore.userConfig, selectedFilters);
 })
 
-
 const saveConfig = async() => {
   Object.keys(selectedFilters).forEach((key) => {
-    const typedKey = key as keyof IFilter;
-    if (Array.isArray(selectedFilters[typedKey])) {
-      selectedFilters[typedKey] = selectedFilters[typedKey].join(",");
+    if (["education", "marital_status", "occupation"].includes(key)) {
+      selectedFilters[key] = selectedFilters[key].join(",");
     }
   })
 
-  console.log(selectedFilters, "selectedFilters");
+  const params: IFilterString = {
+    education: selectedFilters.education,
+    marital_status: selectedFilters.marital_status,
+    occupation: selectedFilters.occupation,
+    income: selectedFilters.income,
+    order_by: selectedFilters.order_by,
+    order_dir: selectedFilters.order_dir,
+    max_age: selectedFilters.max_age,
+    min_age: selectedFilters.min_age,
+    user_id: authStore.userDataResponse!.id
+  }
+
+
   try {
-    const { data } = await authApi.updateConfig(selectedFilters)
-    console.log(data, 'data');
+    const { data } = await authApi.updateConfig(params);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id , ...config} = data;
     authStore.userDataResponse!.config = config;

@@ -17,8 +17,8 @@ const authStore = useAuthStore();
 const router = useRouter();
 const onLogin = async () => {
   try {
-    const { data }  = await authApi.signIn(form);
-    authStore.setToken(data.token);
+    const { data: { token } }  = await authApi.signIn(form);
+    authStore.setToken(token);
     router.push('/dashboard/home');
 
   } catch (error) {

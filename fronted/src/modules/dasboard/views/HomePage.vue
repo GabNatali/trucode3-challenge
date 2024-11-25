@@ -4,12 +4,13 @@ import AdultsTable from '../components/AdultsTable.vue';
 import FiltersTable from '../components/FiltersTable.vue';
 import Paginator from '../components/PaginatorTable.vue';
 import adultApi from '../actions/AdultApi';
-import type { IAdultsResponse, IFilter } from '../interfaces';
+import type { IAdultsResponse, IFilter, IParams } from '../interfaces';
 import { useToast } from 'vue-toastification';
 import { initDrawers } from 'flowbite';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth.store';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const authStore = useAuthStore();
 // filters
 const filters = ref<Partial<Record<keyof IFilter, string | number>>>({
@@ -53,11 +54,18 @@ const handlePageSizeChange = async(newSize: number) => {
   await loadData();
 };
 
-const params = computed(() => {
+const params = computed<IParams>(() => {
   return {
-    ...filters.value,
     page: currentPage.value,
     page_size: pageSize.value,
+    education: filters.value.education?.toString() || "",
+    marital_status: filters.value.marital_status?.toString() || "",
+    occupation: filters.value.occupation?.toString() || "",
+    income: filters.value.income?.toString() || "",
+    order_by: filters.value.order_by?.toString() || "",
+    order_dir: filters.value.order_dir?.toString() || "",
+    max_age: Number(filters.value.max_age) || 0,
+    min_age: Number(filters.value.min_age) || 0,
   };
 });
 
@@ -80,7 +88,16 @@ const loadData = async () => {
 }
 
 const donwloadFileCSV = async () => {
-  const params = {...filters.value};
+  const params:Partial<IParams> = {
+    education: filters.value.education?.toString() || "",
+    marital_status: filters.value.marital_status?.toString() || "",
+    occupation: filters.value.occupation?.toString() || "",
+    income: filters.value.income?.toString() || "",
+    order_by: filters.value.order_by?.toString() || "",
+    order_dir: filters.value.order_dir?.toString() || "",
+    max_age: Number(filters.value.max_age) || 0,
+    min_age: Number(filters.value.min_age) || 0,
+  };
   try {
     const { data } = await adultApi.downloadFile(params);
     const blob = new Blob([data], { type: 'text/csv' });
