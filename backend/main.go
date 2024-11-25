@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"sync"
 
 	// "sync"
 
 	"github.com/GabNatali/trucode3-challenge-final/cli"
+	"github.com/GabNatali/trucode3-challenge-final/utils"
 	"github.com/gin-gonic/gin"
 
 	// "github.com/GabNatali/trucode3-challenge-final/utils"
@@ -37,38 +39,45 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = utils.CreateEnums(dbClient.DB)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	dbClient.DB.AutoMigrate(&adult.Adult{})
 	dbClient.DB.AutoMigrate(&user.User{})
+	dbClient.DB.AutoMigrate(&user.ConfigUser{})
+
+	linesChan := make(chan []adult.Adult, 4)
+	var wg sync.WaitGroup
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for batch := range linesChan {
+				if err := dbClient.DB.Create(&batch).Error; err != nil {
+					log.Fatal(err)
+				}
+			}
+		}()
+	}
+	path := "./data/source.data"
+	err = utils.ReadFile(path, linesChan)
+	if err != nil {
+		log.Fatal(err)
+	}
+	close(linesChan)
+	wg.Wait()
+
 	crypto := crypto.NewCrypto()
 
-	// linesChan := make(chan []adult.Adult, 4)
-	// var wg sync.WaitGroup
-
-	// for i := 0; i < 10; i++ {
-	// 	wg.Add(1)
-	// 	go func() {
-	// 		defer wg.Done()
-	// 		for batch := range linesChan {
-	// 			if err := dbClient.DB.Create(&batch).Error; err != nil {
-	// 				log.Printf("Failed to insert remaining batch: %v", err)
-	// 			}
-	// 		}
-	// 	}()
-	// }
-
-	// path := "../data/source.data"
-
-	// err = utils.ReadFile(path, linesChan)
-
-	// if err != nil {
-	// 	log.Fatalf("Error leyendo el archivo: %v", err)
-	// }
-
-	// close(linesChan)
-	// wg.Wait()
-
 	userRepository := user.NewUserRepository(dbClient.DB)
-	userService := user.NewUserService(userRepository, crypto)
+	userService := user.NewUserService(
+		userRepository,
+		crypto,
+		config.AccessTokenSecret,
+	)
 	userHandler := user.NewUserHandler(userService)
 
 	authService := auth.NewAuthService(
@@ -89,7 +98,8 @@ func main() {
 	routes := gin.Default()
 
 	routes.Use(func(c *gin.Context) {
-		c.Set("authService", authService)
+		c.Set("crypto", crypto)
+		c.Set("secret", config.AccessTokenSecret)
 		c.Next()
 	})
 
@@ -99,6 +109,6 @@ func main() {
 	adult.AddRoutesAdult(routes, *adultHandler)
 	stats.AddStatsRouter(routes, statsHandler)
 
-	fmt.Printf("API server listening at: %s\n\n", ":3333")
-	log.Fatal(routes.Run(":3333"))
+	fmt.Printf("API server listening at: %s\n\n", config.HttpPort)
+	routes.Run(config.HttpPort)
 }

@@ -2,12 +2,13 @@ package utils
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/GabNatali/trucode3-challenge-final/internal/adult"
+	"gorm.io/gorm"
 )
 
 func ReadFile(path string, linesChan chan<- []adult.Adult) error {
@@ -33,18 +34,13 @@ func ReadFile(path string, linesChan chan<- []adult.Adult) error {
 
 		fields := strings.Split(line, ",")
 		if len(fields) < 15 {
-			fmt.Printf("Línea inválida: %s\n", line)
 			continue
 		}
 
 		age, _ := strconv.Atoi(cleanText(fields[0]))
 		fnlwgt, _ := strconv.Atoi(cleanText(fields[2]))
-		educationNum, err := strconv.Atoi(cleanText(fields[4]))
+		educationNum, _ := strconv.Atoi(cleanText(fields[4]))
 
-		if err != nil {
-			fmt.Printf("Error al convertir la educación: %v\n", err)
-
-		}
 		capitalGain, _ := strconv.Atoi(cleanText(fields[10]))
 		capitalLoss, _ := strconv.Atoi(cleanText(fields[11]))
 		hoursPerWeek, _ := strconv.Atoi(cleanText(fields[12]))
@@ -79,8 +75,40 @@ func ReadFile(path string, linesChan chan<- []adult.Adult) error {
 		linesChan <- batch
 	}
 
-	fmt.Printf("Total líneas leídas: %d\n", lineCount)
 	return scanner.Err()
+}
+
+func MigrateData(db *gorm.DB) error {
+
+	linesChan := make(chan []adult.Adult, 4)
+	var wg sync.WaitGroup
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for batch := range linesChan {
+				tx := db.Create(&batch).Error
+				if tx != nil {
+					return
+				}
+			}
+		}()
+	}
+
+	path := "../data/source.data"
+
+	err := ReadFile(path, linesChan)
+
+	if err != nil {
+		return err
+	}
+
+	close(linesChan)
+	wg.Wait()
+
+	return nil
+
 }
 
 func cleanText(value string) string {

@@ -1,0 +1,25 @@
+// linesChan := make(chan []adult.Adult, 4)
+// var wg sync.WaitGroup
+
+// for i := 0; i < 10; i++ {
+// 	wg.Add(1)
+// 	go func() {
+// 		defer wg.Done()
+// 		for batch := range linesChan {
+// 			if err := dbClient.DB.Create(&batch).Error; err != nil {
+// 				log.Printf("Failed to insert remaining batch: %v", err)
+// 			}
+// 		}
+// 	}()
+// }
+
+// path := "../data/source.data"
+
+// err = utils.ReadFile(path, linesChan)
+
+// if err != nil {
+// 	log.Fatalf("Error leyendo el archivo: %v", err)
+// }
+
+// close(linesChan)
+// wg.Wait()

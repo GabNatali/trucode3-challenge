@@ -1,0 +1,40 @@
+package utils
+
+import (
+	"sync"
+
+	"github.com/GabNatali/trucode3-challenge-final/internal/adult"
+	"gorm.io/gorm"
+)
+
+func MigrateData(db *gorm.DB) error {
+
+	linesChan := make(chan []adult.Adult, 4)
+	var wg sync.WaitGroup
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for batch := range linesChan {
+				if err := db.Create(&batch).Error; err != nil {
+					return err
+				}
+			}
+		}()
+	}
+
+	path := "../data/source.data"
+
+	err = ReadFile(path, linesChan)
+
+	if err != nil {
+		return err
+	}
+
+	close(linesChan)
+	wg.Wait()
+
+	return nil
+
+}
