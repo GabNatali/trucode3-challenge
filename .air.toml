@@ -1,6 +1,0 @@
-
-# .air.toml
-[build]
-cmd = "cd backend && go build -o ../main ."
-bin = "../main"
-watch_dir = "./backend"
