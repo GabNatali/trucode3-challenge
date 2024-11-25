@@ -1,11 +1,12 @@
 import { isTokenExpired } from '@/modules/auth/auth.utils';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL
 });
 
-// const authStores = useAuthStore();
+const router = useRouter();
 
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('accessToken');
@@ -19,11 +20,12 @@ api.interceptors.request.use(config => {
 
 api.interceptors.response.use( response => response,
   error => {
-      if (error.response && error.status === 401) {
-        // authStores.logout();
-        return Promise.reject(error);
-      }
-      return Promise.reject(error);
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('accessToken');
+      window.location.reload();
+      router.push('/sign-in');
+    }
+    return Promise.reject(error);
   });
 
 
