@@ -34,8 +34,8 @@ func (a *authHandler) Login(c *gin.Context) {
 
 	user, err := a.authService.Login(loginRequest)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"status":  http.StatusUnauthorized,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
 			"message": err.Error(),
 		})
 		return
