@@ -12,8 +12,6 @@ Renombra este archivo como instructions.md para que puedas agregar tu propio REA
 La fuente de datos se encuentra en la carpeta data. Es un archivo de texto plano con más de 30,000 registros por lo que como primer recomendación pasarla a una base de datos estructurada sería lo adecuado. Otras recomendaciones:
 
 1. Utiliza una base de datos Postgres.
-2. El uso de enums podría serte útil.
-3. Al ser una gran cantidad de datos por cargar a la DB, podrías considerar utilizar [goroutines](https://medium.com/@sumairz/golang-intro-to-goroutines-39fe44d6bf8d) que utilizamos también durante [el curso](https://github.com/codeableorg/trucode3-go-live-coding/tree/main/16.concurrency).
 
 ## Historia de Usuario 1: Como usuario, quiero filtrar y ordenar los datos para obtener información específica.
 
@@ -48,43 +46,7 @@ La fuente de datos se encuentra en la carpeta data. Es un archivo de texto plano
 - Criterios de Aceptación:
   - La aplicación debe ser accesible y usable en diferentes tamaños de pantalla.
   - Todas las funcionalidades deben ser fácilmente utilizables en dispositivos móviles.
-
-## Historia de Usuario 4 -opcional-: Como usuario, quiero poder exportar datos censales.
-
-- Contexto:
-  - necesitamos herramientas para exportar datos de acuerdo a la información filtrada y ordenada.
-- Descripción:
-  - quiero la opción de exportar los datos en formato CSV para su análisis externo.
-- Criterios de Aceptación:
-  - Debería haber una opción clara para importar y actualizar datos.
-  - La exportación a CSV debe proporcionar un archivo descargable con todos los datos seleccionados.
-
-## Historia de Usuario 5 -opcional-: Como usuario, quiero ver estadísticas resumidas para comprender mejor los datos.
-
-- Contexto:
-  - necesitamos obtener estadísticas resumidas para comprender mejor la distribución demográfica, incluyendo edad promedio y distribución de ingresos por nivel de educación y ocupación.
-- Descripción:
-  - Quiero ver estadísticas resumidas como edad promedio y horas de trabajo promedio.
-  - Además, deseo obtener insights sobre la distribución de ingresos dentro de diferentes niveles de educación y ocupaciones.
-- Criterios de Aceptación:
-  - Las estadísticas resumidas deben ser claramente visibles en la interfaz.
-  - Las visualizaciones deben proporcionar información sobre la distribución de ingresos según la educación y la ocupación.
-
-## Historia de Usuario 6 -opcional-: Como usuario, quiero ver visualizaciones interactivas de datos para comprender la distribución demográfica.
-
-- Descripción:
-  - Al acceder a la aplicación, deseo ver gráficos interactivos que representen la distribución de datos demográficos.
-- Criterios de Aceptación:
-  - La página principal debe mostrar al menos cuatro visualizaciones interactivas.
-
-## Implementación y Verificaciones Finales
-
-- Despliegue
-  - Despliega la aplicación en cualquier plataforma para que sea accesible desde la web.
-- Verificaciones Finales y Documentación
-  - Documenta cualquier paso adicional necesario para el despliegue.
-  - Asegúrate de que la aplicación cumpla con los requisitos establecidos como obligatorios y cualesquiera de los opcionales.
-
+  - 
 ¡Éxito!
 
 
